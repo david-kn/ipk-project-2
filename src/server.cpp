@@ -27,13 +27,13 @@
 
 using namespace std;
 
-typedef struct params {
+typedef struct params
+{
     int port;
 } tParams, *ptrParams;
 
-
-
-enum errors {
+enum errors
+{
     E_OK,
     E_ARG,
     E_PORT,
@@ -52,46 +52,50 @@ enum errors {
 };
 
 const char *EMSG[] = {
-    "VSE JE OK",                                       // E_OK
-    "Spatne zadane parametry",                         // E_ARG
-    "Spatny tvar portu",                               // E_URL
-    "Chyba pri kompilace regexp",                      // E_REGCOMP
-    "Zadana adresa neodpovida validnimu tvaru",        // E_REGADR
-    "Spatny vstupni protokol",                         // E_PROTOCOL
-    "Chyba pri vytvareni socketu",                     // E_SOCKET
-    "Chyba pri prekladu jmena",                        // E_GETHOST
-    "Chyba pri navazovani spojeni",                    // E_CON
-    "Chyba pri uzavirani spojeni",                     // E_CLOSE
-    "Chyba pri posilani GET pozadavku",                // E_WRITE
-    "Chyba pri prijimani odpovedi",                    // E_READ
-    "Chyba pri parsovani URI",                         // E_ADDR
-    "Chyba pri importu",                               // E_WRONG
-    "Chyba pri uzavirani souboru",                     // E_FCLOSE
+    "VSE JE OK",                                // E_OK
+    "Spatne zadane parametry",                  // E_ARG
+    "Spatny tvar portu",                        // E_URL
+    "Chyba pri kompilace regexp",               // E_REGCOMP
+    "Zadana adresa neodpovida validnimu tvaru", // E_REGADR
+    "Spatny vstupni protokol",                  // E_PROTOCOL
+    "Chyba pri vytvareni socketu",              // E_SOCKET
+    "Chyba pri prekladu jmena",                 // E_GETHOST
+    "Chyba pri navazovani spojeni",             // E_CON
+    "Chyba pri uzavirani spojeni",              // E_CLOSE
+    "Chyba pri posilani GET pozadavku",         // E_WRITE
+    "Chyba pri prijimani odpovedi",             // E_READ
+    "Chyba pri parsovani URI",                  // E_ADDR
+    "Chyba pri importu",                        // E_WRONG
+    "Chyba pri uzavirani souboru",              // E_FCLOSE
 };
 
-void showHelp() {
+void showHelp()
+{
     printf("Napoveda k projektu do predmetu IPK (Projekt 3)\n");
     printf("Autor: David Konar (xkonar07@stud.fit.vutbr.cz\n\n");
 }
 
-
-
-void showError(int error) {
+void showError(int error)
+{
     fprintf(stderr, "%s\n", EMSG[error]);
 }
 
-
-int processArgs(int argc, char** argv, tParams *par) {
+int processArgs(int argc, char **argv, tParams *par)
+{
 
     int i = 0;
     int c;
 
     // too many (few) arguments
-    if(argc < 2 || argc > 3) {
+    if (argc < 2 || argc > 3)
+    {
         return EXIT_FAILURE;
-    } else if (strcmp(argv[1], "-p") == 0) {
+    }
+    else if (strcmp(argv[1], "-p") == 0)
+    {
         par->port = atoi(argv[2]);
-    } else
+    }
+    else
         return EXIT_FAILURE;
 
     return EXIT_SUCCESS;
@@ -99,7 +103,7 @@ int processArgs(int argc, char** argv, tParams *par) {
 
 void endProc(int status)
 {
-  waitpid(-1, &status, 0);
+    waitpid(-1, &status, 0);
 }
 
 int dataExchange(int &t, string &fileName, string &action, int num, string &msg)
@@ -119,8 +123,10 @@ int dataExchange(int &t, string &fileName, string &action, int num, string &msg)
     fstream mailFileBOTH;
 
     // -s argument; sending a message
-    if(strcmp(action.c_str(),"SEND") == 0) {
-        if(fopen(fileName.c_str(), "a") == NULL) {
+    if (strcmp(action.c_str(), "SEND") == 0)
+    {
+        if (fopen(fileName.c_str(), "a") == NULL)
+        {
             printf("Chyba pri zapisu do souboru\n");
 
             // vytvoreni hlavicky pozadavku
@@ -129,12 +135,14 @@ int dataExchange(int &t, string &fileName, string &action, int num, string &msg)
             msgSend.append("\r\n\r\n");
             msgSend.append("\r\n\r\n");
 
-            if(write(t, msgSend.c_str(), msgSend.length()) < 0)  //  odeslani odpovedi klientovi
+            if (write(t, msgSend.c_str(), msgSend.length()) < 0) //  odeslani odpovedi klientovi
             {
                 showError(E_WRITE);
                 return EXIT_FAILURE;
             }
-        } else {
+        }
+        else
+        {
             // vytvoreni hlavicky pozadavku
             msgSend.assign("DD 0.1 ");
             msgSend.append("OK");
@@ -142,7 +150,8 @@ int dataExchange(int &t, string &fileName, string &action, int num, string &msg)
             msgSend.append("Ok.");
             msgSend.append("\r\n\r\n");
 
-            if(write(t, msgSend.c_str(), msgSend.length()) < 0) { //  odeslani odpovedi klientovi
+            if (write(t, msgSend.c_str(), msgSend.length()) < 0)
+            { //  odeslani odpovedi klientovi
                 showError(E_WRITE);
                 return EXIT_FAILURE;
             }
@@ -151,112 +160,132 @@ int dataExchange(int &t, string &fileName, string &action, int num, string &msg)
             msg.append("<<#END_OF_MESSAGE#>>");
             msg.append("\n");
 
-            mailFileWRITE.open (fileName.c_str(), ios::app);
+            mailFileWRITE.open(fileName.c_str(), ios::app);
             mailFileWRITE << msg.c_str();
             mailFileWRITE.close();
         }
     }
     // -d argument; deleting a message
-    else if(strcmp(action.c_str(),"DEL") == 0) {
-        if(fopen(fileName.c_str(), "a") == NULL) {
+    else if (strcmp(action.c_str(), "DEL") == 0)
+    {
+        if (fopen(fileName.c_str(), "a") == NULL)
+        {
             msgSend.assign("DD 0.1 ");
             msgSend.append("FAIL");
             msgSend.append("\r\n\r\n");
             msgSend.append("\r\n\r\n");
 
-            if(write(t, msgSend.c_str(), msgSend.length()) < 0) { //  odeslani odpovedi klientovi
+            if (write(t, msgSend.c_str(), msgSend.length()) < 0)
+            { //  odeslani odpovedi klientovi
                 showError(E_WRITE);
                 return EXIT_FAILURE;
             }
-
-        } else {
+        }
+        else
+        {
 
             // vytvoreni hlavicky pozadavku
             msgSend.assign("DD 0.1 ");
             msgSend.append("OK");
             msgSend.append("\r\n\r\n");
 
-            mailFileREAD.open (fileName.c_str());
+            mailFileREAD.open(fileName.c_str());
             msg.clear();
             cnt = 1;
-            while(mailFileREAD) {
+            while (mailFileREAD)
+            {
                 getline(mailFileREAD, readLine);
-                if((readLine.find("<<#END_OF_MESSAGE#>>")) != string::npos) {
+                if ((readLine.find("<<#END_OF_MESSAGE#>>")) != string::npos)
+                {
                     // predel zprav
 
-                    if(cnt == num) {
+                    if (cnt == num)
+                    {
                         //printf("- %s(%d)\n", readLine.c_str(),cnt);
                         change = 1;
-
                     }
-                    else {
-                       // printf("+ %s(%d)\n", readLine.c_str(),cnt);
+                    else
+                    {
+                        // printf("+ %s(%d)\n", readLine.c_str(),cnt);
                         msg.append(readLine);
                         msg.append("\n");
                     }
                     cnt++;
-                } else {
-                        if(cnt == num) {
-                          //  printf("- %s(%d)\n", readLine.c_str(),cnt);
-                          ;
-                        }
-                        else {
-                           // printf("+ %s(%d)\n", readLine.c_str(),cnt);
-                            msg.append(readLine);
-                            msg.append("\n");
-                        }
+                }
+                else
+                {
+                    if (cnt == num)
+                    {
+                        //  printf("- %s(%d)\n", readLine.c_str(),cnt);
+                        ;
+                    }
+                    else
+                    {
+                        // printf("+ %s(%d)\n", readLine.c_str(),cnt);
+                        msg.append(readLine);
+                        msg.append("\n");
+                    }
                 }
             }
             mailFileREAD.close();
 
             // vratit data do souboru po vymazani radku
-            mailFileWRITE.open (fileName.c_str());
+            mailFileWRITE.open(fileName.c_str());
             mailFileWRITE << msg.c_str();
             mailFileWRITE.close();
 
             // podle toho jestli opravdu k vymazu nebo bylo cislo mimo rozsah posli zpet navratovou informaci
-            if(change)
+            if (change)
                 msgSend.append("Ok.");
             else
                 msgSend.append("Err.");
             msgSend.append("\r\n\r\n");
 
-            if(write(t, msgSend.c_str(), msgSend.length()) < 0)     {
+            if (write(t, msgSend.c_str(), msgSend.length()) < 0)
+            {
                 showError(E_WRITE);
                 return EXIT_FAILURE;
             }
         }
-
     }
     // -r argument; reading mailbox
-    else if(strcmp(action.c_str(),"READ") == 0) {
-        if(fopen(fileName.c_str(), "r") == NULL) {
+    else if (strcmp(action.c_str(), "READ") == 0)
+    {
+        if (fopen(fileName.c_str(), "r") == NULL)
+        {
 
             msgSend.assign("DD 0.1 ");
             msgSend.append("EMPTY");
             msgSend.append("\r\n\r\n");
             msgSend.append("\r\n\r\n");
 
-            if(write(t, msgSend.c_str(), msgSend.length()) < 0)    {
+            if (write(t, msgSend.c_str(), msgSend.length()) < 0)
+            {
                 showError(E_WRITE);
                 return EXIT_FAILURE;
             }
-        } else {
+        }
+        else
+        {
             // vytvoreni hlavicky pozadavku
             msgSend.assign("DD 0.1 ");
             msgSend.append("OK");
             msgSend.append("\r\n\r\n");
 
             int cnt = 1;
-            mailFileREAD.open (fileName.c_str());
-            while(mailFileREAD) {
+            mailFileREAD.open(fileName.c_str());
+            while (mailFileREAD)
+            {
                 getline(mailFileREAD, readLine);
-                if((readLine.find("<<#END_OF_MESSAGE#>>")) != string::npos) {
+                if ((readLine.find("<<#END_OF_MESSAGE#>>")) != string::npos)
+                {
 
                     // predel zprav - citac poctu zprav daneho uzivatele
                     cnt++;
                     msgSend.append("\n");
-                } else {
+                }
+                else
+                {
                     // printf("Pridavam: %s\n", readLine.c_str());
                     msgSend.append(readLine.c_str());
                 }
@@ -266,13 +295,14 @@ int dataExchange(int &t, string &fileName, string &action, int num, string &msg)
             mailFileREAD.close();
             msgSend.append("\r\n\r\n");
 
-            if(write(t, msgSend.c_str(), msgSend.length()) < 0)     {
+            if (write(t, msgSend.c_str(), msgSend.length()) < 0)
+            {
                 showError(E_WRITE);
                 return EXIT_FAILURE;
             }
         }
     }
-    else  // uplne jiny pozadavek - NEZNAMY
+    else // uplne jiny pozadavek - NEZNAMY
     {
 
         // vytvoreni hlavicky pozadavku
@@ -281,7 +311,8 @@ int dataExchange(int &t, string &fileName, string &action, int num, string &msg)
         msgSend.append("\r\n\r\n");
         msgSend.append("\r\n\r\n");
 
-        if(write(t, msgSend.c_str(), msgSend.length()) < 0)    {
+        if (write(t, msgSend.c_str(), msgSend.length()) < 0)
+        {
             showError(E_WRITE);
             return EXIT_FAILURE;
         }
@@ -289,8 +320,7 @@ int dataExchange(int &t, string &fileName, string &action, int num, string &msg)
     return EXIT_SUCCESS;
 }
 
-
-int connect(int port, tParams* par)
+int connect(int port, tParams *par)
 {
     struct sockaddr_in sin;
     struct hostent *hptr;
@@ -317,94 +347,104 @@ int connect(int port, tParams* par)
     int status;
     int num = 0;
 
-
     signal(SIGCHLD, endProc);
 
-
-    if((s = socket(PF_INET, SOCK_STREAM, 0)) < 0) {  // vytvoreni socketu
+    if ((s = socket(PF_INET, SOCK_STREAM, 0)) < 0)
+    { // vytvoreni socketu
         showError(E_WRONG);
         return EXIT_FAILURE;
     }
 
-    if(bind(s, (sockaddr *)&sin, sizeof(sin)) < 0 ) { // svaze IP a socket
+    if (bind(s, (sockaddr *)&sin, sizeof(sin)) < 0)
+    { // svaze IP a socket
         showError(E_WRONG);
         return EXIT_FAILURE;
     }
 
-
-    if(listen(s, 5)) {
+    if (listen(s, 5))
+    {
         showError(E_WRONG);
         return EXIT_FAILURE;
     }
 
     sinLen = sizeof(sin);
-    while (1)  // cekani na pozavadky od klientu
+    while (1) // cekani na pozavadky od klientu
     {
         msg_rec.clear();
         goOn = 1;
-        if((t = accept(s, (struct sockaddr *)&sin, &sinLen)) < 0) { // vytvoreni socketu
+        if ((t = accept(s, (struct sockaddr *)&sin, &sinLen)) < 0)
+        { // vytvoreni socketu
 
             showError(E_WRONG);
             return EXIT_FAILURE;
         }
 
-        pid = fork();  // vytvoreni noveho procesu
-        if(pid < 0)  { // chyba pri vytboreni procesu
+        pid = fork(); // vytvoreni noveho procesu
+        if (pid < 0)
+        { // chyba pri vytboreni procesu
             showError(E_WRONG);
             kill(0, SIGTERM);
         }
-        else if(pid == 0) {  // vznik potomka
-            while(goOn == 1) {  // cteni dat od klienta
-                if(read(t, &buf, 1) < 0)      {
+        else if (pid == 0)
+        { // vznik potomka
+            while (goOn == 1)
+            { // cteni dat od klienta
+                if (read(t, &buf, 1) < 0)
+                {
                     showError(E_READ);
                     return EXIT_FAILURE;
                 }
-                msg_rec.append(&buf, 1);  // nacitani hlavicky
+                msg_rec.append(&buf, 1); // nacitani hlavicky
 
-                if((buf == '\r') && prev == 1) {
+                if ((buf == '\r') && prev == 1)
+                {
                     goOn = 0;
                 }
-                if(buf == '\n') {
+                if (buf == '\n')
+                {
                     prev = 1;
                 }
-                else {
+                else
+                {
                     prev = 0;
                 }
             }
 
             // prisel spravny pozadavek
-            if(msg_rec.find("DD 0.1 CONNECT") != string::npos)     {
+            if (msg_rec.find("DD 0.1 CONNECT") != string::npos)
+            {
                 // vyparsovani informaci z hlavicky
                 beginning = msg_rec.find("ACTION:") + 7;
                 ending = msg_rec.find("\r\n", beginning);
-                action.assign(msg_rec, beginning, ending-beginning);
+                action.assign(msg_rec, beginning, ending - beginning);
 
                 beginning = msg_rec.find("USER:") + 5;
                 ending = msg_rec.find("\r\n", beginning);
-                fileName.assign(msg_rec, beginning, ending-beginning);
+                fileName.assign(msg_rec, beginning, ending - beginning);
 
                 beginning = msg_rec.find("NUM:") + 4;
                 ending = msg_rec.find("\r\n", beginning);
-                tmp.assign(msg_rec, beginning, ending-beginning);
+                tmp.assign(msg_rec, beginning, ending - beginning);
                 num = atoi(tmp.c_str());
 
                 beginning = msg_rec.find("MSG:") + 4;
                 ending = msg_rec.find("\r\n", beginning);
-                msg.assign(msg_rec, beginning, ending-beginning);
+                msg.assign(msg_rec, beginning, ending - beginning);
 
-
-
-                if(dataExchange(t, fileName, action, num, msg) == EXIT_FAILURE) {
+                if (dataExchange(t, fileName, action, num, msg) == EXIT_FAILURE)
+                {
 
                     return EXIT_FAILURE;
                 }
             }
             // pozadavek nerozpoznan
-            else {
+            else
+            {
                 showError(E_WRONG);
                 continue;
             }
-            if(close(t) < 0) { // uzavreni socketu
+            if (close(t) < 0)
+            { // uzavreni socketu
                 showError(E_CLOSE);
                 return EXIT_FAILURE;
             }
@@ -412,41 +452,44 @@ int connect(int port, tParams* par)
         }
 
         // kod rodicovskeho procesu
-        if(close(t) < 0)  // uzavreni socketu
+        if (close(t) < 0) // uzavreni socketu
         {
             showError(E_CLOSE);
             return EXIT_FAILURE;
         }
     }
-    if(close(s) < 0) { // uzavreni socketu
+    if (close(s) < 0)
+    { // uzavreni socketu
         showError(E_CLOSE);
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
 }
 
-
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
     int loop = 0;
     tParams myParams = {};
     int error = E_OK;
 
-    if(processArgs(argc, argv, &myParams) == EXIT_FAILURE) {
+    if (processArgs(argc, argv, &myParams) == EXIT_FAILURE)
+    {
         showError(E_ARG);
         return EXIT_FAILURE;
     }
-    if(myParams.port == 0) {
+    if (myParams.port == 0)
+    {
         showError(E_PORT);
         return EXIT_FAILURE;
     }
 
     /////////////////////////////////////////////////////
     // Connection
-    if(connect(myParams.port, &myParams) == EXIT_FAILURE) {
+    if (connect(myParams.port, &myParams) == EXIT_FAILURE)
+    {
         showError(error);
         return EXIT_FAILURE;
     }
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
-
